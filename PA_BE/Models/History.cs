@@ -7,6 +7,6 @@ namespace PermAdminAPI.Models
         public string EmployeeName { get; set; }
         public string ApplicationName { get; set; }
         public string Action { get; set; }
-        public string Note { get; set; }
+        public string? Note { get; set; }
     }
 }
