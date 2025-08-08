@@ -1,0 +1,38 @@
+<div class="mb-3">
+  <form (ngSubmit)="createApplication()" #appForm="ngForm" class="d-flex flex-wrap gap-2">
+    <select class="form-select" [(ngModel)]="newApp.employeeId" name="employeeId" required>
+      <option [ngValue]="null">Select employee</option>
+      <option *ngFor="let e of employees" [value]="e.id">{{e.firstName}} {{e.lastName}}</option>
+    </select>
+    <select class="form-select" [(ngModel)]="newApp.licenceId" name="licenceId" required>
+      <option [ngValue]="null">Select permission</option>
+      <option *ngFor="let l of licences" [value]="l.id">{{l.applicationName}}</option>
+    </select>
+    <select class="form-select" [(ngModel)]="newApp.isGrant" name="isGrant">
+      <option [ngValue]="true">Grant</option>
+      <option [ngValue]="false">Revoke</option>
+    </select>
+    <button class="btn btn-primary" type="submit">Create</button>
+  </form>
+</div>
+
+<div class="text-danger" *ngIf="errorMessage">{{errorMessage}}</div>
+
+<table class="table">
+  <thead>
+    <tr>
+      <th>Employee ID</th>
+      <th>Full Name</th>
+      <th>Permission</th>
+      <th>Action</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr *ngFor="let app of applications; trackBy: trackById" [ngClass]="app.isGrant ? 'table-success' : 'table-danger'">
+      <td>{{app.employeeId}}</td>
+      <td>{{app.employeeName}}</td>
+      <td>{{app.licenceName}}</td>
+      <td>{{app.isGrant ? 'Grant' : 'Revoke'}}</td>
+    </tr>
+  </tbody>
+</table>
