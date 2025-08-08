@@ -67,4 +67,30 @@ public class PermissionApplicationsController(DataContext context) : BaseApiCont
 
         return Ok(request);
     }
+
+    [HttpPost("{id}/close")]
+    public async Task<ActionResult> CloseApplication(int id, CloseApplicationDTO request)
+    {
+        var app = await context.PermissionApplications
+            .Include(pa => pa.Employee)
+            .Include(pa => pa.Licence)
+            .FirstOrDefaultAsync(pa => pa.Id == id);
+
+        if (app == null) return NotFound();
+
+        var report = new Report
+        {
+            EmployeeId = app.EmployeeId,
+            EmployeeName = app.Employee.FirstName + " " + app.Employee.LastName,
+            LicenceName = app.Licence.ApplicationName,
+            IsGrant = app.IsGrant,
+            Note = request.Note
+        };
+
+        context.Reports.Add(report);
+        context.PermissionApplications.Remove(app);
+        await context.SaveChangesAsync();
+
+        return Ok();
+    }
 }

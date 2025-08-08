@@ -25,6 +25,7 @@
       <th>Full Name</th>
       <th>Permission</th>
       <th>Action</th>
+      <th></th>
     </tr>
   </thead>
   <tbody>
@@ -33,6 +34,16 @@
       <td>{{app.employeeName}}</td>
       <td>{{app.licenceName}}</td>
       <td>{{app.isGrant ? 'Grant' : 'Revoke'}}</td>
+      <td>
+        <ng-container *ngIf="closingAppId === app.id; else closeBtn">
+          <input class="form-control d-inline-block w-auto me-2" [(ngModel)]="note" placeholder="Note" />
+          <button class="btn btn-sm btn-danger me-2" (click)="confirmClose(app)">Confirm</button>
+          <button class="btn btn-sm btn-secondary" (click)="cancelClose()">Cancel</button>
+        </ng-container>
+        <ng-template #closeBtn>
+          <button class="btn btn-sm btn-warning" (click)="startClose(app.id)">Close</button>
+        </ng-template>
+      </td>
     </tr>
   </tbody>
 </table>

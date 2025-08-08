@@ -7,6 +7,7 @@ import { EmployeeDetailsComponent } from './employee-details/employee-details.co
 import { AssignLicenseComponent } from './assign-license/assign-license.component';
 import { LicenceDetailsComponent } from './licence-details/licence-details.component';
 import { PermissionApplicationsComponent } from './permission-applications/permission-applications.component';
+import { ReportsComponent } from './reports/reports.component';
 
 export const routes: Routes = [
   { path: '', component: EmployeeTableComponent },
@@ -19,4 +20,5 @@ export const routes: Routes = [
   { path: 'licenceDetails/:id', component: LicenceDetailsComponent },
   { path: 'assign-license/:employeeId', component: AssignLicenseComponent},
   { path: 'permission-applications', component: PermissionApplicationsComponent },
+  { path: 'reports', component: ReportsComponent },
 ];
