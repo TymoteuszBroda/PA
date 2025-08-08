@@ -135,6 +135,35 @@ namespace PermAdminAPI.Data.Migrations
                     b.ToTable("LicenceInstances");
                 });
 
+            modelBuilder.Entity("PermAdminAPI.Models.History", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("Action")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("ApplicationName")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<int>("EmployeeId")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("EmployeeName")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Note")
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Histories");
+                });
+
             modelBuilder.Entity("PermAdminAPI.Models.EmployeeLicence", b =>
                 {
                     b.HasOne("PermAdminAPI.Models.Employee", "Employee")
