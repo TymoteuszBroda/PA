@@ -21,6 +21,7 @@
 <table class="table">
   <thead>
     <tr>
+      <th>Application ID</th>
       <th>Employee ID</th>
       <th>Full Name</th>
       <th>Permission</th>
@@ -30,20 +31,12 @@
   </thead>
   <tbody>
     <tr *ngFor="let app of applications; trackBy: trackById" [ngClass]="app.isGrant ? 'table-success' : 'table-danger'">
+      <td>{{app.uniqueId}}</td>
       <td>{{app.employeeId}}</td>
       <td>{{app.employeeName}}</td>
       <td>{{app.licenceName}}</td>
       <td>{{app.isGrant ? 'Grant' : 'Revoke'}}</td>
-      <td>
-        <ng-container *ngIf="closingAppId === app.id; else closeBtn">
-          <input class="form-control d-inline-block w-auto me-2" [(ngModel)]="note" placeholder="Note" />
-          <button class="btn btn-sm btn-danger me-2" (click)="confirmClose(app)">Confirm</button>
-          <button class="btn btn-sm btn-secondary" (click)="cancelClose()">Cancel</button>
-        </ng-container>
-        <ng-template #closeBtn>
-          <button class="btn btn-sm btn-warning" (click)="startClose(app.id)">Close</button>
-        </ng-template>
-      </td>
+      <td><button class="btn btn-sm btn-warning" (click)="close(app)">Close</button></td>
     </tr>
   </tbody>
 </table>

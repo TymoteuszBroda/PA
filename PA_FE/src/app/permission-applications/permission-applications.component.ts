@@ -21,8 +21,6 @@ export class PermissionApplicationsComponent implements OnInit {
   licences: Licence[] = [];
   newApp: Partial<PermissionApplication> = { isGrant: true };
   errorMessage = '';
-  closingAppId: number | null = null;
-  note = '';
 
   constructor(
     private appService: PermissionApplicationService,
@@ -66,22 +64,10 @@ export class PermissionApplicationsComponent implements OnInit {
     });
   }
 
-  startClose(id: number): void {
-    this.closingAppId = id;
-    this.note = '';
-  }
-
-  cancelClose(): void {
-    this.closingAppId = null;
-    this.note = '';
-  }
-
-  confirmClose(app: PermissionApplication): void {
-    if (!this.note.trim()) return;
-
-    this.appService.closeApplication(app.id, this.note).subscribe(() => {
+  close(app: PermissionApplication): void {
+    if (!confirm('Close this application?')) return;
+    this.appService.closeApplication(app.id).subscribe(() => {
       this.applications = this.applications.filter((a) => a.id !== app.id);
-      this.cancelClose();
     });
   }
 

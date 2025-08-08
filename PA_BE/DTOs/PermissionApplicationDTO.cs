@@ -3,6 +3,7 @@ namespace PermAdminAPI.DTOs;
 public class PermissionApplicationDTO
 {
     public int Id { get; set; }
+    public string UniqueId { get; set; }
     public int EmployeeId { get; set; }
     public string EmployeeName { get; set; }
     public int LicenceId { get; set; }

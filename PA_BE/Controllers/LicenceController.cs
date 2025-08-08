@@ -261,7 +261,16 @@ public async Task<ActionResult<Licence>> CreateLicence(Licence licence)
 
             context.EmployeeLicences.Add(employeeLicence);
             licence.AvailableLicences--;
-            
+
+            context.Histories.Add(new History
+            {
+                EmployeeId = employee.id,
+                EmployeeName = $"{employee.FirstName} {employee.LastName}",
+                ApplicationName = licence.ApplicationName,
+                Action = "granted",
+                Note = null
+            });
+
             await context.SaveChangesAsync();
 
             return Ok(new AssignLicenceDTO
@@ -321,9 +330,17 @@ public async Task<ActionResult<Licence>> CreateLicence(Licence licence)
         }
 
         [HttpDelete("assigned-licences/{id}")]
-        public async Task<IActionResult> DeleteAssignedLicence(int id)
+        public async Task<IActionResult> DeleteAssignedLicence(int id, [FromBody] RevokeLicenceDTO request)
         {
-            var employeeLicence = await context.EmployeeLicences.FindAsync(id);
+            if (request == null || string.IsNullOrWhiteSpace(request.Note))
+            {
+                return BadRequest("Note is required");
+            }
+
+            var employeeLicence = await context.EmployeeLicences
+                .Include(el => el.Employee)
+                .Include(el => el.Licence)
+                .FirstOrDefaultAsync(el => el.id == id);
             if (employeeLicence == null) return NotFound();
 
             var licence = await context.Licences.FindAsync(employeeLicence.licenceId);
@@ -333,6 +350,16 @@ public async Task<ActionResult<Licence>> CreateLicence(Licence licence)
             }
 
             context.EmployeeLicences.Remove(employeeLicence);
+
+            context.Histories.Add(new History
+            {
+                EmployeeId = employeeLicence.employeeId,
+                EmployeeName = $"{employeeLicence.Employee.FirstName} {employeeLicence.Employee.LastName}",
+                ApplicationName = employeeLicence.Licence.ApplicationName,
+                Action = "revoked",
+                Note = request.Note
+            });
+
             await context.SaveChangesAsync();
 
             return NoContent();

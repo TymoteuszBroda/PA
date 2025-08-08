@@ -15,7 +15,7 @@ namespace PermAdminAPI.Data
         public DbSet<EmployeeLicence> EmployeeLicences {get; set;}
         public DbSet<LicenceInstance> LicenceInstances {get; set;}
         public DbSet<PermissionApplication> PermissionApplications { get; set; }
-        public DbSet<Report> Reports { get; set; }
+        public DbSet<History> Histories { get; set; }
     }
 }
 

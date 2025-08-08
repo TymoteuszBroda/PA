@@ -20,7 +20,7 @@ export class PermissionApplicationService {
     return this.http.post<PermissionApplication>(this.apiUrl, app);
   }
 
-  closeApplication(id: number, note: string): Observable<void> {
-    return this.http.post<void>(`${this.apiUrl}/${id}/close`, { note });
+  closeApplication(id: number): Observable<void> {
+    return this.http.post<void>(`${this.apiUrl}/${id}/close`, {});
   }
 }

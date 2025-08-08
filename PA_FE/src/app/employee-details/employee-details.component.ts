@@ -61,18 +61,21 @@ export class EmployeeDetailsComponent implements OnInit {
   }
 
   onDeleteAssignment(assignmentId: number): void {
-    if (confirm('Are you sure you want to remove this licence assignment?')) {
-      this.licenceService.deleteAssignedLicence(assignmentId).subscribe({
-        next: () => {
-          this.assignedLicences = this.assignedLicences.filter(
-            (al) => al.id !== assignmentId
-          );
-        },
-        error: (err) => {
-          this.errorMessage = `Error deleting assignment: ${err.message}`;
-        },
-      });
+    const note = prompt('Please provide a note for this revocation:');
+    if (!note || !note.trim()) {
+      return;
     }
+
+    this.licenceService.deleteAssignedLicence(assignmentId, note).subscribe({
+      next: () => {
+        this.assignedLicences = this.assignedLicences.filter(
+          (al) => al.id !== assignmentId
+        );
+      },
+      error: (err) => {
+        this.errorMessage = `Error deleting assignment: ${err.message}`;
+      },
+    });
   }
 
   isExpiringSoon(validTo?: string): boolean {

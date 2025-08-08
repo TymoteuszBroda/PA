@@ -53,9 +53,10 @@ export class LicenceService {
     );
   }
 
-  deleteAssignedLicence(assignmentId: number): Observable<void> {
+  deleteAssignedLicence(assignmentId: number, note: string): Observable<void> {
     return this.http.delete<void>(
-      `${this.apiUrl}/assigned-licences/${assignmentId}`
+      `${this.apiUrl}/assigned-licences/${assignmentId}`,
+      { body: { note } }
     );
   }
 
