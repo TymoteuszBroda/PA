@@ -1,6 +1,6 @@
 namespace PermAdminAPI.DTOs
 {
-    public class CloseApplicationDTO
+    public class RevokeLicenceDTO
     {
         public string Note { get; set; }
     }

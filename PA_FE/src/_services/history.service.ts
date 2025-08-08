@@ -2,17 +2,17 @@ import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { environment } from '../environments/environment';
-import { Report } from '../_models/Report';
+import { History } from '../_models/History';
 
 @Injectable({
   providedIn: 'root',
 })
-export class ReportService {
-  private apiUrl = `${environment.apiUrl}/reports`;
+export class HistoryService {
+  private apiUrl = `${environment.apiUrl}/history`;
 
   constructor(private http: HttpClient) {}
 
-  getReports(): Observable<Report[]> {
-    return this.http.get<Report[]>(this.apiUrl);
+  getHistory(): Observable<History[]> {
+    return this.http.get<History[]>(this.apiUrl);
   }
 }

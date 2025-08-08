@@ -7,23 +7,23 @@ using System.Linq;
 
 namespace PermAdminAPI.Controllers;
 
-public class ReportsController(DataContext context) : BaseApiController
+public class HistoryController(DataContext context) : BaseApiController
 {
     [HttpGet]
-    public async Task<ActionResult<IEnumerable<ReportDTO>>> GetReports()
+    public async Task<ActionResult<IEnumerable<HistoryDTO>>> GetHistory()
     {
-        var reports = await context.Reports
-            .Select(r => new ReportDTO
+        var history = await context.Histories
+            .Select(r => new HistoryDTO
             {
                 Id = r.Id,
                 EmployeeId = r.EmployeeId,
                 EmployeeName = r.EmployeeName,
-                LicenceName = r.LicenceName,
-                Action = r.IsGrant ? "granted" : "revoked",
+                ApplicationName = r.ApplicationName,
+                Action = r.Action,
                 Note = r.Note
             })
             .ToListAsync();
 
-        return Ok(reports);
+        return Ok(history);
     }
 }

@@ -5,14 +5,16 @@
       <th>Full Name</th>
       <th>Application</th>
       <th>Action</th>
+      <th>Note</th>
     </tr>
   </thead>
   <tbody>
-    <tr *ngFor="let r of reports; trackBy: trackById">
+    <tr *ngFor="let r of history; trackBy: trackById">
       <td>{{ r.employeeId }}</td>
       <td>{{ r.employeeName }}</td>
-      <td>{{ r.licenceName }}</td>
+      <td>{{ r.applicationName }}</td>
       <td>{{ r.action }}</td>
+      <td>{{ r.note }}</td>
     </tr>
   </tbody>
 </table>

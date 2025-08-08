@@ -1,8 +1,8 @@
-export interface Report {
+export interface History {
   id: number;
   employeeId: number;
   employeeName: string;
-  licenceName: string;
+  applicationName: string;
   action: string;
   note: string;
 }
