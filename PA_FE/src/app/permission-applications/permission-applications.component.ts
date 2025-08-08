@@ -59,7 +59,16 @@ export class PermissionApplicationsComponent implements OnInit {
         this.errorMessage = '';
       },
       error: (err) => {
-        this.errorMessage = err.error;
+        if (typeof err.error === 'string') {
+          this.errorMessage = err.error;
+        } else if (err.error?.errors) {
+          const firstKey = Object.keys(err.error.errors)[0];
+          this.errorMessage = err.error.errors[firstKey][0];
+        } else if (err.error?.title) {
+          this.errorMessage = err.error.title;
+        } else {
+          this.errorMessage = 'An unexpected error occurred';
+        }
       },
     });
   }
