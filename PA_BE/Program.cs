@@ -24,6 +24,25 @@ namespace PermAdminAPI
             {
                 var context = services.GetRequiredService<DataContext>();
                 context.Database.Migrate();
+
+                context.Database.ExecuteSqlRaw(@"CREATE TABLE IF NOT EXISTS Histories (
+                    Id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    EmployeeId INTEGER NOT NULL,
+                    EmployeeName TEXT,
+                    ApplicationName TEXT,
+                    Action TEXT,
+                    Note TEXT
+                );");
+
+                context.Database.ExecuteSqlRaw(@"CREATE TABLE IF NOT EXISTS PermissionApplications (
+                    Id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    UniqueId TEXT NOT NULL,
+                    EmployeeId INTEGER NOT NULL,
+                    LicenceId INTEGER NOT NULL,
+                    IsGrant INTEGER NOT NULL,
+                    FOREIGN KEY (EmployeeId) REFERENCES Employees(id),
+                    FOREIGN KEY (LicenceId) REFERENCES Licences(id)
+                );");
             }
             catch (Exception ex)
             {

@@ -19,7 +19,7 @@ public class PermissionApplicationsController(DataContext context) : BaseApiCont
             .Select(pa => new PermissionApplicationDTO
             {
                 Id = pa.Id,
-                UniqueId = pa.UniqueId.ToString(),
+                UniqueId = pa.UniqueId,
                 EmployeeId = pa.EmployeeId,
                 EmployeeName = pa.Employee.FirstName + " " + pa.Employee.LastName,
                 LicenceId = pa.LicenceId,
@@ -53,19 +53,24 @@ public class PermissionApplicationsController(DataContext context) : BaseApiCont
             return BadRequest("Employee does not have this licence");
         }
 
+        var year = DateTime.UtcNow.Year;
+        var count = await context.PermissionApplications
+            .CountAsync(pa => pa.UniqueId.EndsWith($"/{year}"));
+        var uniqueId = $"{count + 1}/{year}";
+
         var app = new PermissionApplication
         {
             EmployeeId = request.EmployeeId,
             LicenceId = request.LicenceId,
             IsGrant = request.IsGrant,
-            UniqueId = Guid.NewGuid()
+            UniqueId = uniqueId
         };
 
         context.PermissionApplications.Add(app);
         await context.SaveChangesAsync();
 
         request.Id = app.Id;
-        request.UniqueId = app.UniqueId.ToString();
+        request.UniqueId = app.UniqueId;
         request.EmployeeName = employee.FirstName + " " + employee.LastName;
         request.LicenceName = licence.ApplicationName;
 
