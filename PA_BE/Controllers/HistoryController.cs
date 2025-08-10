@@ -10,9 +10,16 @@ namespace PermAdminAPI.Controllers;
 public class HistoryController(DataContext context) : BaseApiController
 {
     [HttpGet]
-    public async Task<ActionResult<IEnumerable<HistoryDTO>>> GetHistory()
+    public async Task<ActionResult<IEnumerable<HistoryDTO>>> GetHistory(string? employeeName = null)
     {
-        var history = await context.Histories
+        var query = context.Histories.AsQueryable();
+
+        if (!string.IsNullOrEmpty(employeeName))
+        {
+            query = query.Where(h => h.EmployeeName == employeeName);
+        }
+
+        var history = await query
             .Select(r => new HistoryDTO
             {
                 Id = r.Id,

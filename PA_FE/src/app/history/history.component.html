@@ -1,3 +1,17 @@
+<select
+  class="form-select mb-3"
+  [(ngModel)]="selectedEmployeeName"
+  (change)="onEmployeeChange()"
+>
+  <option value="">All Employees</option>
+  <option
+    *ngFor="let employee of employees"
+    [value]="employee.firstName + ' ' + employee.lastName"
+  >
+    {{ employee.firstName }} {{ employee.lastName }}
+  </option>
+</select>
+
 <table class="table">
   <thead>
     <tr>

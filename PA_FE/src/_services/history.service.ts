@@ -12,7 +12,8 @@ export class HistoryService {
 
   constructor(private http: HttpClient) {}
 
-  getHistory(): Observable<History[]> {
-    return this.http.get<History[]>(this.apiUrl);
+  getHistory(employeeName?: string): Observable<History[]> {
+    const options = employeeName ? { params: { employeeName } } : {};
+    return this.http.get<History[]>(this.apiUrl, options);
   }
 }
