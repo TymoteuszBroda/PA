@@ -35,6 +35,7 @@ namespace PermAdminAPI
                 TryEnsureHistoriesTable(context, logger);
                 TryEnsurePermissionApplicationsTable(context, logger);
                 TryEnsureEmployeeLicenceInstanceColumn(context, logger);
+                TryEnsureApplicationSequencesTable(context, logger);
             }
             catch (Exception ex)
             {
@@ -90,6 +91,24 @@ namespace PermAdminAPI
             catch (Exception ex)
             {
                 logger.LogError(ex, "Failed to ensure PermissionApplications table");
+            }
+        }
+
+        private static void TryEnsureApplicationSequencesTable(DataContext context, ILogger logger)
+        {
+            try
+            {
+                context.Database.ExecuteSqlRaw(@"CREATE TABLE IF NOT EXISTS ApplicationSequences (
+                    Id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    Year INTEGER NOT NULL,
+                    LastNumber INTEGER NOT NULL
+                );");
+
+                context.Database.ExecuteSqlRaw(@"CREATE UNIQUE INDEX IF NOT EXISTS IX_ApplicationSequences_Year ON ApplicationSequences(Year);");
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(ex, "Failed to ensure ApplicationSequences table");
             }
         }
 
