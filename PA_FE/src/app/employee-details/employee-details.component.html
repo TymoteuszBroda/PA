@@ -75,7 +75,7 @@
           <td>{{ licence.licenceName }}</td>
           <td>{{ licence.assignedOn | date }}</td>
           <td>{{ licence.validTo | date }}</td>
-          <td>{{ isExpiringSoon(licence.validTo) ? 'expires within two weeks' : '' }}</td>
+          <td>{{ getExpiryStatus(licence.validTo) }}</td>
           <td>
             <button
               class="btn btn-danger btn-sm"
