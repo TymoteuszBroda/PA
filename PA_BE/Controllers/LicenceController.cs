@@ -163,7 +163,16 @@ public async Task<ActionResult<Licence>> CreateLicence(Licence licence)
 
             var licence = await context.Licences.FindAsync(instance.LicenceId);
 
+            var assignments = await context.EmployeeLicences
+                .Where(el => el.LicenceInstanceId == instance.Id)
+                .ToListAsync();
+
             context.LicenceInstances.Remove(instance);
+
+            if (assignments.Count > 0)
+            {
+                context.EmployeeLicences.RemoveRange(assignments);
+            }
 
             if (licence != null && licence.AvailableLicences > 0)
             {
@@ -181,18 +190,20 @@ public async Task<ActionResult<Licence>> CreateLicence(Licence licence)
             var assignedLicences = await context.EmployeeLicences
                 .Include(el => el.Employee)
                 .Include(el => el.Licence)
+                .Include(el => el.LicenceInstance)
                 .Select(el => new AssignLicenceDTO
                 {
                     Id = el.id,
                     EmployeeId = el.employeeId,
                     LicenceId = el.licenceId,
+                    LicenceInstanceId = el.LicenceInstanceId,
                     EmployeeName = $"{el.Employee.FirstName} {el.Employee.LastName}",
                     LicenceName = el.Licence.ApplicationName,
                     AssignedOn = el.AssignedOn,
-                    ValidTo = el.Licence.ValidTo
+                    ValidTo = el.LicenceInstance != null ? el.LicenceInstance.ValidTo : el.Licence.ValidTo
                 })
                 .ToListAsync();
-            
+
             return Ok(assignedLicences);
         }
 
@@ -202,6 +213,7 @@ public async Task<ActionResult<Licence>> CreateLicence(Licence licence)
             var employeeLicence = await context.EmployeeLicences
                 .Include(el => el.Employee)
                 .Include(el => el.Licence)
+                .Include(el => el.LicenceInstance)
                 .FirstOrDefaultAsync(el => el.id == id);
 
             if (employeeLicence == null) return NotFound();
@@ -211,10 +223,11 @@ public async Task<ActionResult<Licence>> CreateLicence(Licence licence)
                 Id = employeeLicence.id,
                 EmployeeId = employeeLicence.employeeId,
                 LicenceId = employeeLicence.licenceId,
-                EmployeeName = employeeLicence.Employee.FirstName+" "+employeeLicence.Employee.LastName,
+                LicenceInstanceId = employeeLicence.LicenceInstanceId,
+                EmployeeName = $"{employeeLicence.Employee.FirstName} {employeeLicence.Employee.LastName}",
                 LicenceName = employeeLicence.Licence.ApplicationName,
                 AssignedOn = employeeLicence.AssignedOn,
-                ValidTo = employeeLicence.Licence.ValidTo
+                ValidTo = employeeLicence.LicenceInstance != null ? employeeLicence.LicenceInstance.ValidTo : employeeLicence.Licence.ValidTo
             };
 
             return Ok(dto);
@@ -224,7 +237,7 @@ public async Task<ActionResult<Licence>> CreateLicence(Licence licence)
         public async Task<ActionResult<AssignLicenceDTO>> AssignLicence([FromBody] AssignLicenceDTO request)
         {
             var existingAssignment = await context.EmployeeLicences
-                .AnyAsync(el => el.employeeId == request.EmployeeId 
+                .AnyAsync(el => el.employeeId == request.EmployeeId
                             && el.licenceId == request.LicenceId);
 
             if (existingAssignment)
@@ -252,10 +265,22 @@ public async Task<ActionResult<Licence>> CreateLicence(Licence licence)
                 return NotFound("Employee not found");
             }
 
+            var instance = await context.LicenceInstances
+                .Where(li => li.LicenceId == request.LicenceId)
+                .Where(li => !context.EmployeeLicences.Any(el => el.LicenceInstanceId == li.Id))
+                .OrderBy(li => li.ValidTo)
+                .FirstOrDefaultAsync();
+
+            if (instance == null)
+            {
+                return BadRequest("No available licence instances found for assignment");
+            }
+
             var employeeLicence = new EmployeeLicence
             {
                 employeeId = request.EmployeeId,
                 licenceId = request.LicenceId,
+                LicenceInstanceId = instance.Id,
                 AssignedOn = DateTime.UtcNow
             };
 
@@ -278,10 +303,11 @@ public async Task<ActionResult<Licence>> CreateLicence(Licence licence)
                 Id = employeeLicence.id,
                 EmployeeId = employeeLicence.employeeId,
                 LicenceId = employeeLicence.licenceId,
+                LicenceInstanceId = employeeLicence.LicenceInstanceId,
                 EmployeeName = $"{employee.FirstName} {employee.LastName}",
                 LicenceName = licence.ApplicationName,
                 AssignedOn = employeeLicence.AssignedOn,
-                ValidTo = licence.ValidTo
+                ValidTo = instance.ValidTo
             });
         }
 
@@ -292,18 +318,20 @@ public async Task<ActionResult<Licence>> CreateLicence(Licence licence)
                 .Where(el => el.employeeId == employeeId)
                 .Include(el => el.Employee)
                 .Include(el => el.Licence)
+                .Include(el => el.LicenceInstance)
                 .Select(el => new AssignLicenceDTO
                 {
                     Id = el.id,
                     EmployeeId = el.employeeId,
                     LicenceId = el.licenceId,
+                    LicenceInstanceId = el.LicenceInstanceId,
                     EmployeeName = $"{el.Employee.FirstName} {el.Employee.LastName}",
                     LicenceName = el.Licence.ApplicationName,
                     AssignedOn = el.AssignedOn,
-                    ValidTo = el.Licence.ValidTo
+                    ValidTo = el.LicenceInstance != null ? el.LicenceInstance.ValidTo : el.Licence.ValidTo
                 })
                 .ToListAsync();
-            
+
             return Ok(assignedLicences);
         }
 
@@ -314,15 +342,17 @@ public async Task<ActionResult<Licence>> CreateLicence(Licence licence)
                 .Where(el => el.licenceId == licenceId)
                 .Include(el => el.Employee)
                 .Include(el => el.Licence)
+                .Include(el => el.LicenceInstance)
                 .Select(el => new AssignLicenceDTO
                 {
                     Id = el.id,
                     EmployeeId = el.employeeId,
                     LicenceId = el.licenceId,
+                    LicenceInstanceId = el.LicenceInstanceId,
                     EmployeeName = $"{el.Employee.FirstName} {el.Employee.LastName}",
                     LicenceName = el.Licence.ApplicationName,
                     AssignedOn = el.AssignedOn,
-                    ValidTo = el.Licence.ValidTo
+                    ValidTo = el.LicenceInstance != null ? el.LicenceInstance.ValidTo : el.Licence.ValidTo
                 })
                 .ToListAsync();
 
