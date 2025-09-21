@@ -70,7 +70,7 @@
       <table class="table table-striped">
         <thead>
           <tr>
-            <th>Licence ID</th>
+            <th>Licence Instance ID</th>
             <th>Employee</th>
             <th>Assigned On</th>
             <th>Licence Expires On</th>
@@ -78,7 +78,7 @@
         </thead>
         <tbody>
           <tr *ngFor="let user of assignedUsers">
-            <td>{{ user.licenceId }}</td>
+            <td>{{ user.licenceInstanceId ?? '-' }}</td>
             <td>{{ user.employeeName || '-' }}</td>
             <td>{{ user.assignedOn ? (user.assignedOn | date) : '-' }}</td>
             <td>{{ user.validTo ? (user.validTo | date) : '-' }}</td>

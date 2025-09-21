@@ -9,5 +9,7 @@ public class EmployeeLicence
     public Employee Employee { get; set; }
     public int licenceId { get; set; }
     public Licence Licence { get; set; }
+    public int? LicenceInstanceId { get; set; }
+    public LicenceInstance? LicenceInstance { get; set; }
     public DateTime AssignedOn { get; set; }
 }

@@ -83,12 +83,17 @@ namespace PermAdminAPI.Data.Migrations
                     b.Property<int>("licenceId")
                         .HasColumnType("INTEGER");
 
+                    b.Property<int?>("LicenceInstanceId")
+                        .HasColumnType("INTEGER");
+
                     b.Property<DateTime>("AssignedOn")
                         .HasColumnType("TEXT");
 
                     b.HasKey("id");
 
                     b.HasIndex("employeeId");
+
+                    b.HasIndex("LicenceInstanceId");
 
                     b.HasIndex("licenceId");
 
@@ -178,7 +183,14 @@ namespace PermAdminAPI.Data.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.HasOne("PermAdminAPI.Models.LicenceInstance", "LicenceInstance")
+                        .WithMany()
+                        .HasForeignKey("LicenceInstanceId")
+                        .OnDelete(DeleteBehavior.Cascade);
+
                     b.Navigation("Employee");
+
+                    b.Navigation("LicenceInstance");
 
                     b.Navigation("Licence");
                 });
