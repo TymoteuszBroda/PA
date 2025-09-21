@@ -79,6 +79,7 @@ export class LicenceDetailsComponent implements OnInit {
         this.instances = this.instances.filter(i => i.id !== instanceId);
         this.licence!.availableLicences--;
         this.licence!.quantity--;
+        this.loadAssignedUsers(this.licence!.id);
       },
       error: err => console.error('Error deleting instance', err)
     });
