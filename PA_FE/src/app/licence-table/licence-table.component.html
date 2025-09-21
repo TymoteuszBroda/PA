@@ -20,7 +20,7 @@
         <td>{{licence.applicationName}}</td>
         <td>{{licence.availableLicences}}</td>
         <td>{{licence.quantity}}</td>
-        <td>{{ isExpiringSoon(licence.id) ? 'expires within two weeks' : '' }}</td>
+        <td>{{ getExpiryMessage(licence.id) }}</td>
         <td>
             <button class="btn btn-primary m-2 btn-sm" (click)="showLicenceDetails(licence.id)">Details</button>
             

@@ -79,13 +79,28 @@ export class EmployeeDetailsComponent implements OnInit {
   }
 
   isExpiringSoon(validTo?: string): boolean {
+    return this.getExpiryStatus(validTo) !== '';
+  }
+
+  getExpiryStatus(validTo?: string): string {
     if (!validTo) {
-      return false;
+      return '';
     }
-    const expiry = new Date(validTo);
+
     const now = new Date();
-    const twoWeeksAhead = new Date();
-    twoWeeksAhead.setDate(now.getDate() + 14);
-    return expiry <= twoWeeksAhead;
+    const expiry = new Date(validTo);
+
+    if (expiry < now) {
+      return 'expired';
+    }
+
+    const twoWeeksAhead = new Date(now);
+    twoWeeksAhead.setDate(twoWeeksAhead.getDate() + 14);
+
+    if (expiry <= twoWeeksAhead) {
+      return 'expires within two weeks';
+    }
+
+    return '';
   }
 }

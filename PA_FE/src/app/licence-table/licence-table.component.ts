@@ -12,7 +12,7 @@ import { LicenceService } from '../../_services/licence.service';
 })
 export class LicenceTableComponent implements OnInit {
   licences: Licence[] = [];
-  expiryAlerts: { [key: number]: boolean } = {};
+  expiryStatuses: { [key: number]: string } = {};
 
   constructor(private licenceService: LicenceService, private router: Router) {}
 
@@ -22,12 +22,15 @@ export class LicenceTableComponent implements OnInit {
       for (const licence of data) {
         this.licenceService.getLicenceInstances(licence.id).subscribe({
           next: (instances: LicenceInstance[]) => {
-            this.expiryAlerts[licence.id] = instances.some((inst) =>
-              this.isDateWithinTwoWeeks(inst.validTo)
+            const validToDates = instances.map((inst) => inst.validTo);
+            this.expiryStatuses[licence.id] = this.calculateExpiryStatus(
+              validToDates
             );
           },
           error: () => {
-            this.expiryAlerts[licence.id] = this.isDateWithinTwoWeeks(licence.validTo);
+            this.expiryStatuses[licence.id] = this.calculateExpiryStatus(
+              licence.validTo
+            );
           },
         });
       }
@@ -60,15 +63,35 @@ export class LicenceTableComponent implements OnInit {
     }
   }
 
-  private isDateWithinTwoWeeks(date: string): boolean {
-    const expiry = new Date(date);
+  private calculateExpiryStatus(dates: string | string[]): string {
+    const dateArray = Array.isArray(dates) ? dates : [dates];
     const now = new Date();
-    const twoWeeksAhead = new Date();
-    twoWeeksAhead.setDate(now.getDate() + 14);
-    return expiry <= twoWeeksAhead;
+    const twoWeeksAhead = new Date(now);
+    twoWeeksAhead.setDate(twoWeeksAhead.getDate() + 14);
+
+    const hasExpired = dateArray.some((date) => new Date(date) < now);
+    if (hasExpired) {
+      return 'expired';
+    }
+
+    const expiringSoon = dateArray.some((date) => {
+      const expiry = new Date(date);
+      return expiry >= now && expiry <= twoWeeksAhead;
+    });
+
+    if (expiringSoon) {
+      return 'expires within two weeks';
+    }
+
+    return '';
   }
 
   isExpiringSoon(id: number): boolean {
-    return this.expiryAlerts[id];
+    const status = this.expiryStatuses[id];
+    return status === 'expires within two weeks' || status === 'expired';
+  }
+
+  getExpiryMessage(id: number): string {
+    return this.expiryStatuses[id] || '';
   }
 }
