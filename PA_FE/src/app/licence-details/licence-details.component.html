@@ -18,34 +18,68 @@
     </div>
   </div>
 
-  <div class="card" *ngIf="assignments.length">
+  <div class="card" *ngIf="instances.length; else noInstances">
     <div class="card-header bg-primary text-white">
-      <h4 class="mb-0">Available licenses</h4>
+      <h4 class="mb-0">Licence instances</h4>
     </div>
     <div class="card-body">
       <table class="table table-striped">
         <thead>
           <tr>
-            <th>Assigned</th>
-            <th>Employee</th>
+            <th>Instance ID</th>
             <th>Expires</th>
+            <th>Status</th>
             <th>Actions</th>
           </tr>
         </thead>
         <tbody>
-          <tr *ngFor="let seat of assignments">
-            <td>{{ seat.assigned ? 'Yes' : 'No' }}</td>
-            <td>{{ seat.employeeName || '-' }}</td>
-            <td>{{ seat.validTo | date }}</td>
+          <tr
+            *ngFor="let instance of instances"
+            [ngClass]="{ 'table-danger': isInstanceExpiring(instance.validTo) }"
+          >
+            <td>{{ instance.id }}</td>
+            <td>{{ instance.validTo | date }}</td>
+            <td>{{ getInstanceStatus(instance.validTo) }}</td>
             <td>
               <button
                 class="btn btn-danger btn-sm"
-                (click)="deleteInstance(seat.instanceId)"
-                [disabled]="seat.assigned || seat.instanceId === undefined"
+                (click)="deleteInstance(instance.id)"
               >
                 Delete
               </button>
             </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <ng-template #noInstances>
+    <div class="card">
+      <div class="card-body text-center">
+        <p class="mb-0">No licence instances available.</p>
+      </div>
+    </div>
+  </ng-template>
+
+  <div class="card mt-4" *ngIf="assignedUsers.length">
+    <div class="card-header bg-secondary text-white">
+      <h4 class="mb-0">Assigned employees</h4>
+    </div>
+    <div class="card-body">
+      <table class="table table-striped">
+        <thead>
+          <tr>
+            <th>Employee</th>
+            <th>Assigned On</th>
+            <th>Licence Valid To</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let user of assignedUsers">
+            <td>{{ user.employeeName || '-' }}</td>
+            <td>{{ user.assignedOn ? (user.assignedOn | date) : '-' }}</td>
+            <td>{{ user.validTo ? (user.validTo | date) : '-' }}</td>
           </tr>
         </tbody>
       </table>

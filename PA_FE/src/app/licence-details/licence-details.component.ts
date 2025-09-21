@@ -16,7 +16,6 @@ export class LicenceDetailsComponent implements OnInit {
   licence: Licence | null = null;
   assignedUsers: AssignLicenceDTO[] = [];
   instances: LicenceInstance[] = [];
-  assignments: { instanceId?: number; validTo: string; assigned: boolean; employeeName?: string }[] = [];
   errorMessage = '';
 
   constructor(
@@ -37,7 +36,9 @@ export class LicenceDetailsComponent implements OnInit {
 
   loadLicence(id: number): void {
     this.licenceService.getLicenceById(id).subscribe({
-      next: licence => (this.licence = licence),
+      next: licence => {
+        this.licence = licence;
+      },
       error: err => {
         console.error('Error loading licence', err);
         this.errorMessage = 'Failed to load licence details';
@@ -49,7 +50,6 @@ export class LicenceDetailsComponent implements OnInit {
     this.licenceService.getEmployeesByLicenceId(licenceId).subscribe({
       next: users => {
         this.assignedUsers = users;
-        this.mergeAssignments();
       },
       error: err => {
         console.error('Error loading users', err);
@@ -61,30 +61,14 @@ export class LicenceDetailsComponent implements OnInit {
   loadInstances(id: number): void {
     this.licenceService.getLicenceInstances(id).subscribe({
       next: instances => {
-        this.instances = instances;
-        this.mergeAssignments();
+        this.instances = [...instances].sort((a, b) =>
+          new Date(a.validTo).getTime() - new Date(b.validTo).getTime()
+        );
       },
-      error: err => console.error('Error loading instances', err)
-    });
-  }
-
-  mergeAssignments(): void {
-    if (!this.licence) return;
-    const seatCount = Math.max(
-      this.instances.length,
-      this.licence.quantity,
-      this.assignedUsers.length
-    );
-
-    this.assignments = Array.from({ length: seatCount }, (_, idx) => {
-      const inst = this.instances[idx];
-      const user = this.assignedUsers[idx];
-      return {
-        instanceId: inst ? inst.id : undefined,
-        validTo: inst ? inst.validTo : this.licence!.validTo,
-        assigned: !!user,
-        employeeName: user ? user.employeeName : undefined,
-      };
+      error: err => {
+        console.error('Error loading instances', err);
+        this.instances = [];
+      },
     });
   }
 
@@ -95,9 +79,45 @@ export class LicenceDetailsComponent implements OnInit {
         this.instances = this.instances.filter(i => i.id !== instanceId);
         this.licence!.availableLicences--;
         this.licence!.quantity--;
-        this.mergeAssignments();
       },
       error: err => console.error('Error deleting instance', err)
     });
+  }
+
+  isInstanceExpiring(validTo: string | undefined): boolean {
+    if (!validTo) {
+      return false;
+    }
+    const now = new Date();
+    const expiry = new Date(validTo);
+    if (isNaN(expiry.getTime())) {
+      return false;
+    }
+    if (expiry < now) {
+      return true;
+    }
+    const twoWeeksAhead = new Date(now);
+    twoWeeksAhead.setDate(twoWeeksAhead.getDate() + 14);
+    return expiry <= twoWeeksAhead;
+  }
+
+  getInstanceStatus(validTo: string | undefined): string {
+    if (!validTo) {
+      return 'Unknown';
+    }
+    const expiry = new Date(validTo);
+    if (isNaN(expiry.getTime())) {
+      return 'Unknown';
+    }
+    const now = new Date();
+    if (expiry < now) {
+      return 'Expired';
+    }
+    const twoWeeksAhead = new Date(now);
+    twoWeeksAhead.setDate(twoWeeksAhead.getDate() + 14);
+    if (expiry <= twoWeeksAhead) {
+      return 'Expires within two weeks';
+    }
+    return 'Active';
   }
 }
