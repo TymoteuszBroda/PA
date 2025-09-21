@@ -140,6 +140,23 @@ namespace PermAdminAPI.Data.Migrations
                     b.ToTable("LicenceInstances");
                 });
 
+            modelBuilder.Entity("PermAdminAPI.Models.ApplicationSequence", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("LastNumber")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("Year")
+                        .HasColumnType("INTEGER");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("ApplicationSequences");
+                });
+
             modelBuilder.Entity("PermAdminAPI.Models.History", b =>
                 {
                     b.Property<int>("Id")

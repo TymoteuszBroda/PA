@@ -5,6 +5,7 @@ using PermAdminAPI.DTOs;
 using PermAdminAPI.Models;
 using System.Collections.Generic;
 using System;
+using System.Linq;
 
 namespace PermAdminAPI.Controllers;
 
@@ -54,9 +55,45 @@ public class PermissionApplicationsController(DataContext context) : BaseApiCont
         }
 
         var year = DateTime.UtcNow.Year;
-        var count = await context.PermissionApplications
-            .CountAsync(pa => pa.UniqueId.EndsWith($"/{year}"));
-        var uniqueId = $"{count + 1}/{year}";
+
+        var sequence = await context.ApplicationSequences
+            .SingleOrDefaultAsync(s => s.Year == year);
+
+        int nextNumber;
+
+        if (sequence == null)
+        {
+            var existingIds = await context.PermissionApplications
+                .Where(pa => pa.UniqueId.EndsWith($"/{year}"))
+                .Select(pa => pa.UniqueId)
+                .ToListAsync();
+
+            var maxExisting = existingIds
+                .Select(id =>
+                {
+                    var parts = id.Split('/', 2);
+                    return int.TryParse(parts[0], out var number) ? number : 0;
+                })
+                .DefaultIfEmpty(0)
+                .Max();
+
+            nextNumber = maxExisting + 1;
+
+            sequence = new ApplicationSequence
+            {
+                Year = year,
+                LastNumber = nextNumber
+            };
+
+            context.ApplicationSequences.Add(sequence);
+        }
+        else
+        {
+            nextNumber = sequence.LastNumber + 1;
+            sequence.LastNumber = nextNumber;
+        }
+
+        var uniqueId = $"{nextNumber}/{year}";
 
         var app = new PermissionApplication
         {
